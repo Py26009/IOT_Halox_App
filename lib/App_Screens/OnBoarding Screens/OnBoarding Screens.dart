@@ -3,6 +3,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:iot_halox_app/App_Screens/Bottom_Nav_Bar/Bottom_nav_bar.dart';
+import 'package:iot_halox_app/App_Screens/Home%20Screens/Home%20Screens.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -11,7 +13,7 @@ class OnboardingScreen extends StatefulWidget {
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends State<OnboardingScreen> with TickerProviderStateMixin{
   final PageController _controller = PageController();
   int _currentPage = 0;
   Timer? _pageTimer;
@@ -25,12 +27,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       subtitle: "Control your smart home easier with our better features.",
     ),
     OnboardData(
-      image: "assets/images/young-woman-with-mobile-phone-outside-stylish-businesswoman-background-office-buildings_307890-6735.jpg",
+      image: "assets/images/onBoarding2.jpg",
       title: "Easier Life with a Smart Home.",
       subtitle: "Welcome to a home that adapts seamlessly to your needs.",
     ),
     OnboardData(
-      image: "assets/images/young-woman-with-mobile-phone-outside-stylish-businesswoman-background-office-buildings_307890-6735.jpg",
+      image: "assets/images/smart-home-mobile-app-wide-586x375.jpg",
       title: "Smart Fan,Air Conditioner control",
       subtitle: "Control your smart air conditioner and fan for ultimate comfort anywhere..",
     ),
@@ -43,7 +45,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _startAutoScroll() {
-    _pageTimer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
+    _pageTimer = Timer.periodic(const Duration(seconds: 10), (Timer timer) {
       if (_currentPage < pages.length - 1) {
         _currentPage++;
       } else {
@@ -82,7 +84,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             },
           ),
 
-          // Bottom overlay controls
+          /// Bottom overlay controls
           Align(
             alignment: Alignment.bottomCenter,
             child: ClipRRect(
@@ -137,7 +139,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   const SizedBox(height: 30),
 
-                  // Get Started Button
+                  /// Get Started Button
                 Container(
                   height: 45,
                   width: 250,
@@ -158,25 +160,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         top: 0,
                           bottom: 0,
                           right: -5,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Transform.translate(
-                                offset: const Offset(0, 0),
-                                child: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white38),
-                              ),
-                              Transform.translate(
-                                offset: const Offset(-8, 0),
-                                child: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white60),
-                              ),
-                              Transform.translate(
-                                offset: const Offset(-16, 0),
-                                child: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white),
-                              ),
-                            ],
-                          ),),
+                          child:  Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Transform.translate(
+                                  offset: const Offset(0, 0),
+                                  child: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white38),
+                                ),
+                                Transform.translate(
+                                  offset: const Offset(-8, 0),
+                                  child: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white60),
+                                ),
+                                Transform.translate(
+                                  offset: const Offset(-16, 0),
+                                  child: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
 
-                      // Swipeable button
+                      ///  Swipe-able button
                       Positioned(
                         left: _dragPosition,
                         top: 0,
@@ -202,7 +205,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 );
                               }
 
-                              // Optionally reset
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => BottomNavBar()),
+                              );
+
+                              /// Optionally reset
                               Future.delayed(Duration(milliseconds: 300), () {
                                 setState(() => _dragPosition = 0.0);
                               });
