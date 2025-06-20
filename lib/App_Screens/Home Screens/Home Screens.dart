@@ -225,7 +225,7 @@ class RoomCardWithSwitch extends StatelessWidget {
                     child: Icon(mIcon, color: const Color(0xffFF8994)),
                   ),
                   const SizedBox(height: 11),
-                  Text(roomName, style: mTextStyle16(mFontWeight: FontWeight.w400)),
+                  Text(roomName, style: mTextStyle18(mFontWeight: FontWeight.w400)),
                   const SizedBox(height: 6),
                   Row(
                     children: [
