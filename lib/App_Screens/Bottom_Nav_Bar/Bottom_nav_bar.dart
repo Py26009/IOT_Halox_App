@@ -4,6 +4,7 @@ import 'package:iot_halox_app/App_Screens/Home%20Screens/Home%20Screens.dart';
 import 'package:iot_halox_app/App_Screens/Home%20Screens/Settings%20Screen.dart';
 import 'package:iot_halox_app/App_Screens/Home%20Screens/Statistics%20Screen.dart';
 import 'package:iot_halox_app/App_Screens/Home%20Screens/View%20Screen.dart';
+import 'package:iot_halox_app/App_Screens/UI_Helper/UI_helper.dart';
 
 
 class BottomNavBar extends StatefulWidget {
@@ -34,54 +35,61 @@ class _BottomNavBarState extends State<BottomNavBar> {
       extendBody: true,
       body: navTo[_selectedIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: Padding(
-          padding:  EdgeInsets.symmetric(horizontal: 8.0),
-          child: FloatingActionButton(
-            onPressed: () {
-              RoomCard();
-            },
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            shape: const CircleBorder(),
-            child: Container(
-              height: 68,
-              width: 68,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: pastelGradient(),
-              ),
-              child: const Icon(Icons.add, color: Colors.black, size: 22),
-            ),
+
+      // 1. The FloatingActionButton no longer needs extra Padding
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showSelectAreaBottomSheet(context);
+        },
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        shape: const CircleBorder(),
+        child: Container(
+          height: 68,
+          width: 68,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: pastelGradient(),
           ),
+          child: const Icon(Icons.add, color: Colors.black, size: 22),
         ),
-      bottomNavigationBar:SafeArea(
-            child: Padding(
-             padding: const EdgeInsets.only(left: 5, right: 16),
-              child: ClipRRect(
-               borderRadius: BorderRadius.circular(30),
-              child: BottomAppBar(
+      ),
+
+      // 2. The BottomAppBar is now structured for perfect symmetry
+      bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         color: const Color(0xff262C52),
-        notchMargin: 6,
+        notchMargin: 8.0, // Provides a nice gap around the FAB
         child: SizedBox(
           height: 70,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildTabIcon(0, Icons.home),
-              SizedBox(width: 10,),
-              _buildTabIcon(1, Icons.tv),
-              const SizedBox(width: 100), // space for FAB
-              _buildTabIcon(3, Icons.bar_chart),
-              SizedBox(width: 10,),
-              _buildTabIcon(4, Icons.settings),
+            children: <Widget>[
+              // Group of icons on the left side
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _buildTabIcon(0, Icons.home),
+                    _buildTabIcon(1, Icons.tv),
+                  ],
+                ),
+              ),
+              // This SizedBox creates the space for the notch
+              const SizedBox(width: 60),
+              // Group of icons on the right side
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _buildTabIcon(3, Icons.bar_chart),
+                    _buildTabIcon(4, Icons.settings),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ),
-    )
-    )
-      )
     );
   }
 
@@ -155,70 +163,130 @@ BoxDecoration pastelBoxDecoration({double radius = 20}) {
 
 
 /// Room Card
-class RoomCard extends StatelessWidget {
-  const RoomCard({super.key});
+void _showSelectAreaBottomSheet(BuildContext context) {
+  // We've added a 'color' to each area in the list
+  final List<Map<String, dynamic>> areas = [
+    {'icon': Icons.kitchen_outlined, 'name': 'Kitchen', 'color': Colors.orange.shade300},
+    {'icon': Icons.meeting_room_outlined, 'name': 'Lobby', 'color': Colors.brown.shade300},
+    {'icon': Icons.bed_outlined, 'name': 'Bedroom', 'color': Colors.purple.shade200},
+    {'icon': Icons.bathtub_outlined, 'name': 'Washroom', 'color': Colors.blue.shade200},
+    {'icon': Icons.living_outlined, 'name': 'Living Room', 'color': Colors.green.shade300},
+    {'icon': Icons.business_center_outlined, 'name': 'Office', 'color': Colors.indigo.shade200},
+    {'icon': Icons.person_outline, 'name': 'Guest Room', 'color': Colors.pink.shade200},
+    {'icon': Icons.balcony_outlined, 'name': 'Balcony', 'color': Colors.teal.shade200},
+  ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 140,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.pink.shade50,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Circular Icon
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.4),
-            ),
-            child: Icon(Icons.desktop_mac, size: 32, color: Colors.pink),
-          ),
-          const SizedBox(height: 12),
-
-          // Room name
-          const Text(
-            'Office',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (context) {
+      return SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
             ),
           ),
-          const SizedBox(height: 8),
-
-          // Devices & Time
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                '5 Devices',
-                style: TextStyle(fontSize: 12, color: Colors.black54),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Select Your Area", style: mTextStyle24()),
+              const SizedBox(height: 24),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.9,
+                ),
+                itemCount: areas.length,
+                itemBuilder: (context, index) {
+                  // Pass the new color to our helper widget
+                  return _buildAreaGridItem(
+                    context,
+                    areas[index]['icon'],
+                    areas[index]['name'],
+                    areas[index]['color'],
+                  );
+                },
               ),
-              Text(
-                '10n',
-                style: TextStyle(fontSize: 12, color: Colors.black54),
-              ),
+              const SizedBox(height: 20),
             ],
           ),
-          const SizedBox(height: 16),
-
-          // Power Button
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.green.shade100,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            child: const Icon(Icons.power_settings_new, color: Colors.green, size: 20),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      );
+    },
+  );
 }
+
+// Replace the existing helper widget as well
+Widget _buildAreaGridItem(BuildContext context, IconData icon, String name, Color color) {
+  return InkWell(
+    onTap: () {
+      print("$name selected");
+      Navigator.pop(context);
+    },
+    borderRadius: BorderRadius.circular(16),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // This container now uses the specific color for its background
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: color, // Use the passed-in color
+            borderRadius: BorderRadius.circular(16),
+          ),
+          // The icon color is set to white for good contrast
+          child: Icon(icon, size: 28, color: Colors.white),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          name,
+          style: mTextStyle14(mColor: Colors.grey.shade700),
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    ),
+  );
+}
+
+// Add this helper widget inside _BottomNavBarState as well
+/*
+Widget _buildAreaGridItem(BuildContext context, IconData icon, String name) {
+  return InkWell(
+    onTap: () {
+      print("$name selected");
+      Navigator.pop(context);
+    },
+    borderRadius: BorderRadius.circular(16),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(icon, size: 28, color: Colors.grey.shade800),
+        ),
+        const SizedBox(height: 6), // Reduced spacing
+        Text(
+          name,
+          style: mTextStyle14(mColor: Colors.grey.shade700),
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    ),
+  );
+}*/

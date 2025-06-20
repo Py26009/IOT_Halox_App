@@ -23,18 +23,21 @@ class HomeScreen extends StatelessWidget {
               height: 100,
               width: 100,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: Colors.grey.shade800,
                 shape: BoxShape.circle,
                 border: Border.all(
                   width: 4,
                   color: Color(0xff4EB3AF)
                 )
               ),
-              child: CircleAvatar(
-                radius: 30,
-                backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=4'),
-              ),
-
+              child: ClipOval(
+                child: Image.network(
+                  'https://imgv3.fotor.com/images/homepage-feature-card/Random-image-generator_5_2023-05-05-070624_svfc.jpg',
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover, // Ensures the image covers the circle
+                ),
+              )
             ),
           ),
           SizedBox(height: 11,),
@@ -82,20 +85,21 @@ class HomeScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    RoomCard(nDevices: "10", onDevices: "3", mIcon: Icons.computer, roomName: "Office"),
+                    RoomCardWithSwitch(
+                      nDevices: "10",
+                      onDevices: "3",
+                      mIcon: Icons.computer,
+                      roomName: "Office",
+                      initialValue: true,
+                      onChanged: (val) {
+                        print("Switch is ON: $val");
+                      },
+                    )
                   ],
                 ),
               ),
               SizedBox(height: 21,),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal:16.0),
-                child: CustomGradientSwitch(
-                  initialValue: true,
-                  onChanged: (val) {
-                    print("Switch is ON: $val");
-                  },
-                ),
-              ),
+
             ],
           ),
 
@@ -108,93 +112,145 @@ class HomeScreen extends StatelessWidget {
 }
 
 
- Widget featuresContainers({required IconData mIcon, required String value, required String title,
- required Color mColor}){
-  return Container(
-    height: 150,
-    width: 110,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(14),
-     border: Border.all(
-       width: 2.5,
-        color: Colors.blue.shade100,
-     ),
-    ),
-    child: Column(
-      children: [
-        SizedBox(height: 11,),
-        Icon(mIcon, color:mColor ,),
-        SizedBox(height: 11,),
-        Text("$value", style: mTextStyle18(),),
-        SizedBox(height: 21,),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 17.0),
-          child: Text("$title", style: mTextStyle16(mFontWeight: FontWeight.w400),),
-        )
-      ],
-    ),
-  );
-}
-
- /// Room Card
-  Widget RoomCard({required IconData mIcon, required String roomName, required String nDevices, required String onDevices}){
-  return ClipPath(
-      clipper: InwardBottomCurveClipper(),
+Widget featuresContainers({required IconData mIcon, required String value, required String title, required Color mColor}) {
+  return Material(
+    elevation: 4,
+    borderRadius: BorderRadius.circular(16),
     child: Container(
-      height: 180,
-      width:180,
+      height: 150,
+      width: 110,
       decoration: BoxDecoration(
+        gradient: pastelGradient(), // Apply gradient to the outer container
         borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(colors:[
-          Color(0xffFFECEC),
-          Color(0xffFFEAEC),
-          Color(0xffFFECEC),
-          Color(0xffFFEAEC),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white38.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
         ],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,),
       ),
+      // Padding creates the border thickness
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            SizedBox(height: 11,),
-           Container(
-             height: 46,
-             width: 46,
-             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [
-                Color(0xffFF8994),
-                Colors.white,
-              ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,),
-              // borderRadius: BorderRadius.circular(16),
-               shape: BoxShape.circle,
-               border: Border.all(
-                 width: 2.5,
-                 color: Colors.white
-               ),
-             ),
-             child: Icon(mIcon, color: Color(0xffFF8994),),
-           ),
-            SizedBox(height: 11,),
-            Text("$roomName", style: mTextStyle16(mFontWeight: FontWeight.w400),),
-            SizedBox(height: 6,),
-            Row(
-             // mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text("$nDevices Devices"),
-                Spacer(),
-                Text("$onDevices ON")
-              ],
-            )
-          ],
+        padding: const EdgeInsets.all(2.5),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white, // Inner container has a solid background
+            borderRadius: BorderRadius.circular(13.5), // Slightly smaller radius
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 11),
+              Icon(mIcon, color: mColor),
+              const SizedBox(height: 11),
+              Text(value, style: mTextStyle18()),
+              const SizedBox(height: 21),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 17.0),
+                child: Text(title, style: mTextStyle16(mFontWeight: FontWeight.w400)),
+              )
+            ],
+          ),
         ),
       ),
     ),
   );
+}
+
+
+ /// Room Card
+class RoomCardWithSwitch extends StatelessWidget {
+  final IconData mIcon;
+  final String roomName;
+  final String nDevices;
+  final String onDevices;
+  final bool initialValue;
+  final ValueChanged<bool> onChanged;
+
+  const RoomCardWithSwitch({
+    Key? key,
+    required this.mIcon,
+    required this.roomName,
+    required this.nDevices,
+    required this.onDevices,
+    required this.initialValue,
+    required this.onChanged,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      // Allow the switch to be positioned outside the card's bounds
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        // The Room Card itself
+        ClipPath(
+          clipper: InwardBottomCurveClipper(),
+          child: Container(
+            height: 180,
+            width: 180,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xffFFE6E6),
+                  Color(0xffFFCCCC),
+                Color(0xffFFE6E6)
+                //  Colors.white,// Vibrant peach gradient
+                //  Color(0xFFFFE6A1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 11),
+                  Container(
+                    height: 46,
+                    width: 46,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xffFF8994), Colors.white],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      shape: BoxShape.circle,
+                      border: Border.all(width: 2.5, color: Colors.white),
+                    ),
+                    child: Icon(mIcon, color: const Color(0xffFF8994)),
+                  ),
+                  const SizedBox(height: 11),
+                  Text(roomName, style: mTextStyle16(mFontWeight: FontWeight.w400)),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Text("$nDevices Devices"),
+                      const Spacer(),
+                      Text("$onDevices ON")
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+        // The Switch, positioned perfectly in the curve
+        Positioned(
+          top: 180, // Adjust this value to move the switch up/down
+          child: CustomGradientSwitch(
+            initialValue: initialValue,
+            onChanged: onChanged,
+          ),
+        ),
+      ],
+    );
   }
+}
 
 /// For curve at the bottom in the Room Card
 class InwardBottomCurveClipper extends CustomClipper<Path> {
@@ -227,40 +283,6 @@ class InwardBottomCurveClipper extends CustomClipper<Path> {
 }
 
 /// For centre dip of app bar
-class CenterDipClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    double dipWidth = 100;   // Width of the dip
-    double dipDepth = 60;    // Depth of the dip
-
-    final path = Path();
-    // Start from top-left
-    path.lineTo(0, 0);
-    path.lineTo(0, size.height);
-
-    // Left to center-start
-    path.lineTo((size.width - dipWidth) / 2, size.height);
-
-    // Curve dip in the center
-    path.quadraticBezierTo(
-      size.width / 2,
-      size.height +30,
-      (size.width),
-      size.height-20,
-    );
-
-    // Right to top-right
-    path.lineTo(size.width, size.height);
-    path.lineTo(size.width, 0);
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
 class CenterCurvedAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CenterCurvedAppBar({super.key});
 
@@ -270,7 +292,7 @@ class CenterCurvedAppBar extends StatelessWidget implements PreferredSizeWidget 
   @override
   Widget build(BuildContext context) {
     return ClipPath(
-      clipper: CenterDipClipper(),
+      clipper: InwardBottomCurveClipper(), // Using the correct clipper
       child: Container(
         height: 100,
         color: Colors.white,
@@ -402,6 +424,23 @@ class _CustomGradientSwitchState extends State<CustomGradientSwitch> {
       ),
     );
   }
+}
+
+
+/// Gradient color
+Gradient pastelGradient() {
+  return  LinearGradient(
+    begin: Alignment.topRight,
+    end: Alignment.bottomLeft,
+    colors: [
+      Color(0xFFF8BDE),
+      Colors.purple.shade200,// light pink
+      Colors.blue.shade200, // soft blue
+      Colors.greenAccent.shade100,
+      Colors.yellowAccent.shade100, // soft yellow
+      // Color(0xFFFFCCBC), // soft peach
+    ],
+  );
 }
 
 
